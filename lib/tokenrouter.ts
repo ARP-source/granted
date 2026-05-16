@@ -1,8 +1,12 @@
 import { OpenAI } from 'openai';
 
 const openai = new OpenAI({
-  baseURL: 'https://api.tokenrouter.ai/v1',
-  apiKey: process.env.TOKENROUTER_API_KEY || '',
+  baseURL: 'https://openrouter.ai/api/v1',
+  apiKey: process.env.OPENROUTER_API_KEY || process.env.TOKENROUTER_API_KEY || '',
+  defaultHeaders: {
+    'HTTP-Referer': 'https://grantforge.zeabur.app',
+    'X-Title': 'GrantForge',
+  },
 });
 
 export type RouteType = 'fast' | 'deep';
@@ -12,7 +16,7 @@ export async function routePrompt(
   systemPrompt: string,
   userMessage: string
 ): Promise<string> {
-  const model = task === 'fast' ? 'gpt-4o-mini' : 'gpt-4o';
+  const model = task === 'fast' ? 'openai/gpt-4o-mini' : 'openai/gpt-4o';
 
   const response = await openai.chat.completions.create({
     model,
