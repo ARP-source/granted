@@ -105,12 +105,16 @@ export default function HomePage() {
       const res = await fetch('/api/agent/sweep', { method: 'POST' });
       const result = await res.json();
 
+      if (!res.ok) {
+        throw new Error(result.error || 'Sweep API returned an error');
+      }
+
       if (result.alerts?.length) {
         setAlerts((prev) => [...result.alerts, ...prev].slice(0, 10));
       }
 
-      const updated = [...result.updatedGrants];
-      const newGrants = result.newGrants || [];
+      const updated = Array.isArray(result.updatedGrants) ? result.updatedGrants : [];
+      const newGrants = Array.isArray(result.newGrants) ? result.newGrants : [];
 
       const flipped = updated.map((g: Grant) =>
         g.id === 'ca-dream-fund' && g.status === 'ineligible'
