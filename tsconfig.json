@@ -1,12 +1,18 @@
 {
   "compilerOptions": {
-    "lib": ["dom", "dom.iterable", "esnext"],
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "esnext"
+    ],
     "allowJs": true,
     "skipLibCheck": true,
     "strict": true,
     "noEmit": true,
     "esModuleInterop": true,
     "moduleResolution": "bundler",
+    "baseUrl": ".",
+    "paths": { "@/*": ["./*"] },
     "resolveJsonModule": true,
     "isolatedModules": true,
     "jsx": "preserve",
@@ -14,10 +20,25 @@
     "plugins": [
       {
         "name": "@typescript-eslint/eslint-plugin"
+      },
+      {
+        "name": "next"
       }
     ],
-    "types": ["node", "@types/react", "@types/react-dom"]
+    "types": [
+      "node",
+      "@types/react",
+      "@types/react-dom"
+    ],
+    "module": "esnext"
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx"],
-  "exclude": ["node_modules"]
+  "include": [
+    "next-env.d.ts",
+    "**/*.ts",
+    "**/*.tsx",
+    ".next/types/**/*.ts"
+  ],
+  "exclude": [
+    "node_modules"
+  ]
 }
