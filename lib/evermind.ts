@@ -69,7 +69,9 @@ export function detectDeltas(yesterday: Grant[], today: Grant[]): Delta[] {
       type: "status_change",
       from: dreamFundYesterday.status,
       to: dreamFundToday.status,
-      reason: "New AB540 legislation now requires active EAD."
+      reason: "New AB540 legislation now requires active EAD.",
+      grant: dreamFundToday,
+      status: dreamFundToday.status,
     });
   }
 
@@ -81,7 +83,9 @@ export function detectDeltas(yesterday: Grant[], today: Grant[]): Delta[] {
       type: "new_grant",
       from: null,
       to: g.status,
-      reason: `Statistics major + Sunnyvale resident. 94% match score.`
+      reason: `Statistics major + Sunnyvale resident. 94% match score.`,
+      grant: g,
+      status: g.status,
     });
   }
 

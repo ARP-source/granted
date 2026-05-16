@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { routePrompt } from '@/lib/tokenrouter';
-import { brightdata } from '@/lib/brightdata';
-import { evermind } from '@/lib/evermind';
+import { routePrompt } from '../../../../lib/tokenrouter';
+import { brightdata } from '../../../../lib/brightdata';
+import { evermind } from '../../../../lib/evermind';
+import type { Grant } from '../../../../types';
 
 // Mock user ID for demo
 const DEMO_USER_ID = 'user_alex_h4';
@@ -21,7 +22,7 @@ export async function POST(request: NextRequest) {
     const yesterdayGrants = await evermind.getYesterdaySnapshot(DEMO_USER_ID);
 
     // 3. Simulate today's grants (with deliberate delta)
-    const todayGrants = [
+    const todayGrants: Grant[] = [
       {
         id: 'ca-dream-fund',
         name: 'California Dream Fund',
@@ -60,8 +61,8 @@ export async function POST(request: NextRequest) {
     const deltas = evermind.detectDeltas(yesterdayGrants, todayGrants);
 
     // 5. Generate AI explanations per delta
-    const alerts = [];
-    const newGrants = [];
+    const alerts: any[] = [];
+    const newGrants: any[] = [];
 
     for (const delta of deltas) {
       if (delta.type === 'status_change' && delta.status === 'ineligible') {

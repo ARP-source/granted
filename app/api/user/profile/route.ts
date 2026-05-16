@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { evermind } from '@/lib/evermind';
+import { evermind } from '../../../../lib/evermind';
 
 export async function POST(request: NextRequest) {
   try {
