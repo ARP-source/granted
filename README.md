@@ -20,15 +20,14 @@
 - **Lucide React:** Icon library for consistent, scalable SVG icons (`lucide-react`).
 
 ### AI & Automation
-- **OpenRouter API:** Orchestrates AI conversations and reasoning tasks using advanced models (e.g., `openai/gpt-4o-mini`, `openai/gpt-4o`). Interfaced via the official `openai` Node SDK.
-- **Actionbook SDK (`@actionbookdev/sdk`):** Native integration for agentic browser automation. Powers the LLM's ability to search action manuals and extract verified DOM selectors for navigating funding portals.
-- **Policy Sentinel Agents:** Custom prompt-driven AI routines that analyze deltas in eligibility criteria and generate plain-English alerts.
+- **TokenRouter:** Orchestrates AI reasoning and LLM model routing for application strategy and planning.
+- **Bright Data:** Handles the web browsing and discovery to constantly monitor financial aid portals and eligibility rules.
+- **Actionbook:** Works in combination with Bright Data to provide agentic browser automation, finding verified DOM selectors to execute tasks like form pre-filling.
 
 ### Storage & Infrastructure
+- **Evermind:** Handles long-term memory retention so users can seamlessly transition from researching, to applying, to acquiring without losing context.
 - **Hosting:** Deployed serverlessly on **Zeabur** (`grantforge.zeabur.app`) with automatic GitHub integrations.
-- **Evermind (State Management):** Custom module (`lib/evermind.ts`) for persisting user profiles, tracking grant snapshots, and running diff/delta comparisons (currently mocked).
-- **Bright Data:** Web crawling abstraction (`lib/brightdata.ts`) designed to scrape financial aid policy pages (currently mocked for demo resilience).
-- **Client Persistence:** Native browser `localStorage` to securely save user profile data and pinned grants on the frontend without requiring a database for the demo.
+- **Development Environment:** **Qoder** is used as the primary coding and agentic development interface.
 
 ## Getting Started Locally
 
