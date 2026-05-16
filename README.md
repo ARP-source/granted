@@ -11,13 +11,24 @@
 - **Smart Profiles**: Enter your specific circumstances (like immigration status, major, or being a first-generation student) to get hyper-personalized matching.
 - **Agentic Browser Automation**: Integrated with `@actionbookdev/sdk` to find verified DOM selectors and simulate form prefilling for grant portals.
 
-## Tech Stack
+## Comprehensive Tech Stack
 
-- **Framework:** Next.js 14 App Router
-- **Hosting:** Zeabur
-- **LLM Routing:** OpenRouter API
-- **Browser Automation SDK:** Actionbook
-- **Styling:** Vanilla CSS (Glassmorphism design system)
+### Core Framework & UI
+- **Next.js 14 (App Router):** Full-stack React framework serving both frontend pages and backend API routes.
+- **React 18:** Component library for the UI.
+- **Vanilla CSS:** Bespoke design system utilizing CSS variables for premium dark-mode aesthetics and glassmorphic UI patterns.
+- **Lucide React:** Icon library for consistent, scalable SVG icons (`lucide-react`).
+
+### AI & Automation
+- **OpenRouter API:** Orchestrates AI conversations and reasoning tasks using advanced models (e.g., `openai/gpt-4o-mini`, `openai/gpt-4o`). Interfaced via the official `openai` Node SDK.
+- **Actionbook SDK (`@actionbookdev/sdk`):** Native integration for agentic browser automation. Powers the LLM's ability to search action manuals and extract verified DOM selectors for navigating funding portals.
+- **Policy Sentinel Agents:** Custom prompt-driven AI routines that analyze deltas in eligibility criteria and generate plain-English alerts.
+
+### Storage & Infrastructure
+- **Hosting:** Deployed serverlessly on **Zeabur** (`grantforge.zeabur.app`) with automatic GitHub integrations.
+- **Evermind (State Management):** Custom module (`lib/evermind.ts`) for persisting user profiles, tracking grant snapshots, and running diff/delta comparisons (currently mocked).
+- **Bright Data:** Web crawling abstraction (`lib/brightdata.ts`) designed to scrape financial aid policy pages (currently mocked for demo resilience).
+- **Client Persistence:** Native browser `localStorage` to securely save user profile data and pinned grants on the frontend without requiring a database for the demo.
 
 ## Getting Started Locally
 
