@@ -3,11 +3,15 @@
 export interface UserProfile {
   name: string;
   email?: string;
-  visaStatus: string;
+  immigrationStatus: string;
+  school: string;
   major: string;
   location: string;
-  gpa?: number;
+  gpa?: string;
   enrollmentStatus?: string;
+  circumstances: string[];
+  // Legacy alias
+  visaStatus?: string;
 }
 
 export interface Grant {
@@ -31,4 +35,11 @@ export interface Delta {
   reason: string;
   grant: Grant;
   status?: string;
+}
+
+export interface ChatMessage {
+  id: string;
+  role: 'user' | 'assistant';
+  content: string;
+  timestamp: string;
 }

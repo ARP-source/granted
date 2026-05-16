@@ -13,9 +13,11 @@ export async function getUserProfile(userId: string): Promise<UserProfile> {
   console.log("EVERMIND: getUserProfile", userId);
   return mockProfiles.get(userId) || {
     name: "Alex",
-    visaStatus: "H4",
+    immigrationStatus: "H4 Visa",
+    school: "San Jose State University",
     major: "Statistics",
     location: "Sunnyvale, California",
+    circumstances: [],
   };
 }
 
