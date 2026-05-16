@@ -26,3 +26,10 @@ export async function runDailySweep(urls: string[]): Promise<ScrapeResult[]> {
     success: true
   }));
 }
+
+// Namespace export for route handlers that import as: import { brightdata } from '@/lib/brightdata'
+export const brightdata = {
+  scrapeFinancialAidPage,
+  scrapePolicyUpdate,
+  runDailySweep,
+};
