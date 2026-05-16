@@ -1,9 +1,9 @@
 import type { Metadata } from 'next';
-
+import './globals.css';
 
 export const metadata: Metadata = {
-  title: 'GrantForge — Policy Sentinel',
-  description: 'AI-powered grant monitoring and policy alert system for international students',
+  title: 'GrantForge — AI Funding Companion',
+  description: 'AI-powered grant monitoring and policy alert system. Discover funding, stay eligible, and never miss an opportunity.',
 };
 
 export default function RootLayout({

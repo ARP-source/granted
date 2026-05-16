@@ -1,9 +1,14 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Shield, Sparkles, AlertTriangle, CheckCircle, Download, Pen, Loader2, AlertOctagon, ChevronDown } from 'lucide-react';
+import {
+  Shield, Sparkles, AlertTriangle, CheckCircle, Download,
+  Pen, Loader2, Bell, Clock, DollarSign, TrendingUp,
+  Search, ExternalLink, FileText, Zap, Eye, ChevronRight,
+  CalendarDays, Target, ArrowRight, Star,
+} from 'lucide-react';
 
-// Types
+/* ── Types ── */
 type Grant = {
   id: string;
   name: string;
@@ -31,7 +36,7 @@ type UserProfile = {
   location: string;
 };
 
-// Mock initial data
+/* ── Data ── */
 const INITIAL_GRANTS: Grant[] = [
   {
     id: 'ca-dream-fund',
@@ -59,39 +64,40 @@ const INITIAL_GRANTS: Grant[] = [
   },
 ];
 
-const INITIAL_ALERTS: Alert[] = [];
-
 const USER_PROFILE: UserProfile = {
   name: 'Alex',
   visaStatus: 'H4 Visa',
   major: 'Statistics',
-  location: 'Sunnyvale, California',
+  location: 'Sunnyvale, CA',
 };
 
+/* ── Component ── */
 export default function HomePage() {
   const [grants, setGrants] = useState<Grant[]>(INITIAL_GRANTS);
-  const [alerts, setAlerts] = useState<Alert[]>(INITIAL_ALERTS);
+  const [alerts, setAlerts] = useState<Alert[]>([]);
   const [isSweeping, setIsSweeping] = useState(false);
   const [sweepProgress, setSweepProgress] = useState<string[]>([]);
   const [activeGrant, setActiveGrant] = useState<Grant | null>(null);
-  const [applicationStep, setApplicationStep] = useState<'research' | 'eligible' | 'applied' | 'awarded'>('research');
+  const [appStep, setAppStep] = useState<'research' | 'eligible' | 'applied' | 'awarded'>('research');
 
-  // Simulate sweep flow with sequential steps
+  const eligibleCount = grants.filter(g => g.status === 'eligible').length;
+  const newCount = grants.filter(g => g.status === 'new').length;
+
   const runSweep = async () => {
     setIsSweeping(true);
     setSweepProgress([]);
 
     const steps = [
-      'Agents scanning...',
-      'Bright Data crawling 3 sources...',
-      'TokenRouter reasoning (GPT-4o)...',
-      'Evermind comparing deltas...',
-      'Generating plain-English alerts...',
-      'Updating dashboard...',
+      'Initializing Policy Sentinel agents…',
+      'Bright Data crawling 3 funding sources…',
+      'TokenRouter analyzing policy changes (GPT-4o)…',
+      'Evermind comparing eligibility deltas…',
+      'Generating plain-English alerts…',
+      'Dashboard updated ✓',
     ];
 
     for (let i = 0; i < steps.length; i++) {
-      await new Promise((r) => setTimeout(r, 1000));
+      await new Promise((r) => setTimeout(r, 900));
       setSweepProgress((prev) => [...prev, steps[i]]);
     }
 
@@ -103,14 +109,12 @@ export default function HomePage() {
         setAlerts((prev) => [...result.alerts, ...prev].slice(0, 10));
       }
 
-      // Update grants: replace old ones, add new ones
       const updated = [...result.updatedGrants];
       const newGrants = result.newGrants || [];
-      
-      // Simulate flip: CA Dream Fund → ineligible
-      const flipped = updated.map(g =>
+
+      const flipped = updated.map((g: Grant) =>
         g.id === 'ca-dream-fund' && g.status === 'ineligible'
-          ? { ...g, status: 'ineligible', requirements: [...g.requirements, 'EAD required'] }
+          ? { ...g, status: 'ineligible' as const, requirements: [...g.requirements, 'EAD required'] }
           : g
       );
 
@@ -122,7 +126,7 @@ export default function HomePage() {
           id: `err_${Date.now()}`,
           type: 'critical',
           title: 'Sweep failed',
-          message: 'Failed to connect to Policy Sentinel agents.',
+          message: 'Failed to connect to Policy Sentinel agents. Please try again.',
           detectedBy: ['Frontend'],
           timestamp: new Date().toISOString(),
         },
@@ -133,229 +137,236 @@ export default function HomePage() {
     }
   };
 
-  // Reset application panel when grant changes
   useEffect(() => {
-    if (!activeGrant) setApplicationStep('research');
+    if (!activeGrant) setAppStep('research');
   }, [activeGrant]);
 
+  const stepOrder = ['research', 'eligible', 'applied', 'awarded'] as const;
+  const stepIdx = stepOrder.indexOf(appStep);
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 to-gray-950 text-gray-100 p-4 md:p-6">
-      {/* Top Bar */}
-      <header className="flex items-center justify-between mb-8 pb-4 border-b border-gray-800">
-        <div className="flex items-center space-x-3">
-          <div className="p-2 bg-indigo-600 rounded-lg">
-            <Shield className="h-6 w-6" />
+    <div className="app-shell">
+      {/* ── Header ── */}
+      <header className="header">
+        <div className="header-brand">
+          <div className="header-logo">
+            <Shield />
           </div>
-          <h1 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 to-cyan-300">
-            GrantForge
-          </h1>
+          <div>
+            <div className="header-title">GrantForge</div>
+            <div className="header-subtitle">AI Funding Companion</div>
+          </div>
         </div>
-        <div className="flex items-center space-x-2 px-4 py-2 bg-green-900/30 rounded-full border border-green-700/50 animate-pulse">
-          <div className="w-2 h-2 bg-green-400 rounded-full"></div>
-          <span className="text-green-300 font-medium">Policy Sentinel: ACTIVE</span>
+        <div className="header-status">
+          <span className="status-dot" />
+          Policy Sentinel Active
         </div>
       </header>
 
-      <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
-        {/* Left Sidebar — Profile */}
-        <aside className="lg:col-span-1 space-y-6">
-          <div className="bg-gray-800/50 backdrop-blur-sm rounded-xl p-5 border border-gray-700/50">
-            <h2 className="text-lg font-semibold mb-4 flex items-center">
-              <Sparkles className="h-5 w-5 mr-2 text-yellow-400" />
-              Your Profile
-            </h2>
-            <div className="space-y-3">
-              <div>
-                <p className="text-gray-400 text-sm">Name</p>
-                <p className="font-medium">{USER_PROFILE.name}</p>
+      {/* ── Dashboard ── */}
+      <div className="dashboard">
+        {/* ── LEFT: Profile + Stats ── */}
+        <aside>
+          <div className="card">
+            <div className="profile-avatar">
+              {USER_PROFILE.name.charAt(0)}
+            </div>
+            <div className="profile-field">
+              <div className="profile-label">Name</div>
+              <div className="profile-value">{USER_PROFILE.name}</div>
+            </div>
+            <div className="profile-field">
+              <div className="profile-label">Immigration Status</div>
+              <div className="profile-value profile-value--alert">{USER_PROFILE.visaStatus}</div>
+            </div>
+            <div className="profile-field">
+              <div className="profile-label">Major</div>
+              <div className="profile-value">{USER_PROFILE.major}</div>
+            </div>
+            <div className="profile-field">
+              <div className="profile-label">Location</div>
+              <div className="profile-value">{USER_PROFILE.location}</div>
+            </div>
+            <hr className="profile-divider" />
+            <button className="btn btn-secondary" style={{ width: '100%' }}>
+              <Pen /> Edit Profile
+            </button>
+          </div>
+
+          {/* Quick Stats */}
+          <div className="card" style={{ marginTop: 16 }}>
+            <div className="card-header">
+              <div className="card-icon card-icon--cyan"><TrendingUp /></div>
+              <h2>Overview</h2>
+            </div>
+            <div className="stats-row">
+              <div className="stat-box">
+                <div className="stat-number stat-number--emerald">{eligibleCount}</div>
+                <div className="stat-label">Eligible</div>
               </div>
-              <div>
-                <p className="text-gray-400 text-sm">Status</p>
-                <p className="font-medium text-red-400">{USER_PROFILE.visaStatus}</p>
+              <div className="stat-box">
+                <div className="stat-number stat-number--rose">{grants.filter(g => g.status === 'ineligible').length}</div>
+                <div className="stat-label">Blocked</div>
               </div>
-              <div>
-                <p className="text-gray-400 text-sm">Major</p>
-                <p className="font-medium">{USER_PROFILE.major}</p>
+              <div className="stat-box">
+                <div className="stat-number stat-number--cyan">{newCount}</div>
+                <div className="stat-label">New</div>
               </div>
-              <div>
-                <p className="text-gray-400 text-sm">Location</p>
-                <p className="font-medium">{USER_PROFILE.location}</p>
+            </div>
+
+            <div className="sidebar-section">
+              <div className="sidebar-section-title">Potential Funding</div>
+              <div className="funding-bar">
+                <div className="funding-fill" style={{ width: `${Math.round((eligibleCount / Math.max(grants.length, 1)) * 100)}%` }} />
               </div>
-              <button className="w-full mt-4 py-2 px-4 bg-gray-700 hover:bg-gray-600 rounded-lg flex items-center justify-center transition-colors">
-                <Pen className="h-4 w-4 mr-2" />
-                Edit Profile
-              </button>
+              <div className="funding-label">
+                <span>{eligibleCount} of {grants.length} tracked</span>
+                <span>{Math.round((eligibleCount / Math.max(grants.length, 1)) * 100)}%</span>
+              </div>
             </div>
           </div>
         </aside>
 
-        {/* Center — Grants Grid + Sweep Button */}
-        <main className="lg:col-span-3 space-y-6">
-          <div className="flex justify-between items-center">
-            <h2 className="text-xl font-bold">Active Grants</h2>
-            <button
-              onClick={runSweep}
-              disabled={isSweeping}
-              className={`px-6 py-3 rounded-lg font-medium flex items-center transition-all ${
-                isSweeping
-                  ? 'bg-gray-700 cursor-not-allowed'
-                  : 'bg-indigo-600 hover:bg-indigo-500 active:scale-[0.98]'
-              }`}
-            >
-              {isSweeping ? (
-                <>
-                  <Loader2 className="h-5 w-5 mr-2 animate-spin" />
-                  Scanning...
-                </>
-              ) : (
-                <>
-                  <Sparkles className="h-5 w-5 mr-2" />
-                  Run Policy Sentinel Sweep
-                </>
-              )}
-            </button>
-          </div>
+        {/* ── CENTER: Grants ── */}
+        <main className="grants-section">
+          {/* Sweep Button */}
+          <button
+            id="btn-sweep"
+            onClick={runSweep}
+            disabled={isSweeping}
+            className="btn btn-primary btn-sweep"
+          >
+            {isSweeping ? (
+              <>
+                <Loader2 className="spin" />
+                Running Policy Sentinel Sweep…
+              </>
+            ) : (
+              <>
+                <Zap />
+                Run Policy Sentinel Sweep
+              </>
+            )}
+          </button>
 
+          {/* Sweep Log */}
           {isSweeping && (
-            <div className="bg-gray-800/50 rounded-xl p-4 border border-gray-700/50">
-              <h3 className="font-medium mb-2">Live Sweep Log</h3>
-              <ul className="space-y-1 text-sm text-gray-300">
-                {sweepProgress.map((step, i) => (
-                  <li key={i} className="flex items-center">
-                    <CheckCircle className="h-4 w-4 mr-2 text-green-400 flex-shrink-0" />
-                    {step}
-                  </li>
-                ))}
-              </ul>
+            <div className="sweep-log">
+              <div className="sweep-log-title">
+                <Eye /> Live Agent Log
+              </div>
+              {sweepProgress.map((step, i) => (
+                <div key={i} className="sweep-step">
+                  <CheckCircle />
+                  {step}
+                </div>
+              ))}
             </div>
           )}
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4">
+          {/* Section Header */}
+          <div className="section-header">
+            <h2>Tracked Opportunities</h2>
+            <span className="section-count">{grants.length} grants</span>
+          </div>
+
+          {/* Grants Grid */}
+          <div className="grants-grid">
             {grants.map((grant) => (
               <div
                 key={grant.id}
-                className={`rounded-xl p-5 border transition-all duration-300 cursor-pointer transform hover:scale-[1.01] ${
-                  grant.status === 'eligible'
-                    ? 'bg-green-900/20 border-green-700/50'
-                    : grant.status === 'ineligible'
-                    ? 'bg-red-900/20 border-red-700/50'
-                    : 'bg-blue-900/20 border-blue-700/50'
-                } ${activeGrant?.id === grant.id ? 'ring-2 ring-indigo-500' : ''}`}
+                id={`grant-${grant.id}`}
+                className={`grant-card grant-card--${grant.status} ${activeGrant?.id === grant.id ? 'grant-card--active' : ''}`}
                 onClick={() => setActiveGrant(grant)}
               >
-                <div className="flex justify-between items-start">
-                  <h3 className="font-bold text-lg">{grant.name}</h3>
-                  {grant.status === 'ineligible' && (
-                    <AlertTriangle className="h-5 w-5 text-red-400" />
-                  )}
+                <div className="grant-top">
+                  <h3 className="grant-name">{grant.name}</h3>
+                  <span className={`grant-badge grant-badge--${grant.status}`}>
+                    {grant.status === 'eligible' && <><CheckCircle /> Eligible</>}
+                    {grant.status === 'ineligible' && <><AlertTriangle /> Ineligible</>}
+                    {grant.status === 'new' && <><Star /> New Match</>}
+                  </span>
                 </div>
-                <p className="text-green-400 font-medium mt-1">{grant.amount}</p>
-                <div className="mt-3 space-y-1.5 text-sm">
-                  <div className="flex justify-between">
-                    <span className="text-gray-400">Deadline</span>
-                    <span>{grant.deadline}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-400">Status</span>
-                    <span className={`font-medium ${
-                      grant.status === 'eligible' ? 'text-green-400' : 'text-red-400'
-                    }`}>
-                      {grant.status === 'eligible' ? 'Eligible' : 'Ineligible'}
-                      {grant.status === 'new' && ' — NEW'}
-                    </span>
+                <div className="grant-amount">{grant.amount}</div>
+                <div className="grant-meta">
+                  <div className="grant-meta-row">
+                    <span className="grant-meta-label"><CalendarDays style={{ width: 13, height: 13, display: 'inline', verticalAlign: -2, marginRight: 4 }} />Deadline</span>
+                    <span className="grant-meta-value">{grant.deadline}</span>
                   </div>
                   {grant.matchScore && (
-                    <div className="flex justify-between">
-                      <span className="text-gray-400">Match</span>
-                      <span className="text-cyan-400 font-medium">{grant.matchScore}%</span>
+                    <div className="grant-meta-row">
+                      <span className="grant-meta-label"><Target style={{ width: 13, height: 13, display: 'inline', verticalAlign: -2, marginRight: 4 }} />Match Score</span>
+                      <span className="grant-meta-value grant-meta-value--match">{grant.matchScore}%</span>
                     </div>
                   )}
                 </div>
                 {grant.requirements.length > 0 && (
-                  <div className="mt-3 pt-3 border-t border-gray-700/50">
-                    <p className="text-xs text-gray-400 uppercase tracking-wider mb-1">Requirements</p>
-                    <ul className="text-xs space-y-0.5">
-                      {grant.requirements.slice(0, 2).map((req, i) => (
-                        <li key={i} className="flex items-start">
-                          <span className="text-green-400 mr-1">•</span>
-                          {req}
-                        </li>
-                      ))}
-                      {grant.requirements.length > 2 && (
-                        <li className="text-gray-500 italic">+ {grant.requirements.length - 2} more</li>
-                      )}
-                    </ul>
+                  <div className="grant-reqs">
+                    <div className="grant-reqs-title">Requirements</div>
+                    {grant.requirements.slice(0, 3).map((req, i) => (
+                      <span key={i} className="grant-req-tag">{req}</span>
+                    ))}
+                    {grant.requirements.length > 3 && (
+                      <span className="grant-req-tag">+{grant.requirements.length - 3} more</span>
+                    )}
                   </div>
                 )}
               </div>
             ))}
           </div>
 
-          {/* Application Panel */}
+          {/* ── Detail / Application Panel ── */}
           {activeGrant && (
-            <div className="bg-gray-800/50 backdrop-blur-sm rounded-xl p-5 border border-gray-700/50 mt-6">
-              <div className="flex justify-between items-center mb-4">
-                <h3 className="font-bold text-lg">Apply to {activeGrant.name}</h3>
-                <button
-                  onClick={() => setActiveGrant(null)}
-                  className="text-gray-400 hover:text-gray-200"
-                >
-                  ✕
-                </button>
-              </div>
-
-              <div className="mb-6">
-                <h4 className="font-medium mb-2">Application Progress</h4>
-                <div className="flex items-center space-x-2">
-                  {(['research', 'eligible', 'applied', 'awarded'] as const).map((step, i) => (
-                    <div key={step} className="flex flex-col items-center">
-                      <div
-                        className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition-colors ${
-                          applicationStep === step
-                            ? 'bg-indigo-500 text-white'
-                            : i < ['research', 'eligible', 'applied', 'awarded'].indexOf(applicationStep)
-                            ? 'bg-green-500 text-white'
-                            : 'bg-gray-700 text-gray-400'
-                        }`}
-                      >
-                        {i + 1}
-                      </div>
-                      <span className="text-xs mt-1 text-gray-400 capitalize">{step}</span>
-                    </div>
-                  ))}
-                  <div className="flex-1 h-0.5 bg-gray-700 mx-2"></div>
+            <div className="detail-panel" id="detail-panel">
+              <div className="detail-header">
+                <div>
+                  <div className="detail-title">{activeGrant.name}</div>
+                  <div className="detail-amount">{activeGrant.amount}</div>
                 </div>
+                <button className="detail-close" onClick={() => setActiveGrant(null)}>✕</button>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              {/* Progress */}
+              <div className="progress-track">
+                {stepOrder.map((step, i) => (
+                  <div key={step} style={{ display: 'contents' }}>
+                    <div className="progress-step">
+                      <div className={`progress-dot ${i === stepIdx ? 'progress-dot--active' : i < stepIdx ? 'progress-dot--done' : ''}`}>
+                        {i < stepIdx ? <CheckCircle style={{ width: 16, height: 16 }} /> : i + 1}
+                      </div>
+                      <span className="progress-label">{step}</span>
+                    </div>
+                    {i < stepOrder.length - 1 && (
+                      <div className={`progress-line ${i < stepIdx ? 'progress-line--done' : ''}`} />
+                    )}
+                  </div>
+                ))}
+              </div>
+
+              {/* Actions */}
+              <div className="detail-actions">
                 <button
-                  onClick={() => {
-                    setApplicationStep('eligible');
-                    alert('Actionbook: navigateToGrantPortal() called');
-                  }}
-                  className="py-2 px-4 bg-indigo-600 hover:bg-indigo-500 rounded-lg flex items-center justify-center"
+                  id="action-start"
+                  className="detail-action detail-action--indigo"
+                  onClick={() => setAppStep('eligible')}
                 >
-                  <Sparkles className="h-4 w-4 mr-1" />
+                  <ExternalLink />
                   Start Application
                 </button>
                 <button
-                  onClick={() => {
-                    setApplicationStep('applied');
-                    alert('Actionbook: prefillApplicationForm() called');
-                  }}
-                  className="py-2 px-4 bg-green-600 hover:bg-green-500 rounded-lg flex items-center justify-center"
+                  id="action-prefill"
+                  className="detail-action detail-action--emerald"
+                  onClick={() => setAppStep('applied')}
                 >
-                  <Pen className="h-4 w-4 mr-1" />
+                  <FileText />
                   Pre-fill My Info
                 </button>
                 <button
-                  onClick={() => {
-                    alert('Actionbook: downloadApplicationPDF() called');
-                    alert('PDF saved to /downloads/bay-area-tech-merit.pdf');
-                  }}
-                  className="py-2 px-4 bg-blue-600 hover:bg-blue-500 rounded-lg flex items-center justify-center"
+                  id="action-download"
+                  className="detail-action detail-action--cyan"
+                  onClick={() => {}}
                 >
-                  <Download className="h-4 w-4 mr-1" />
+                  <Download />
                   Download PDF
                 </button>
               </div>
@@ -363,41 +374,38 @@ export default function HomePage() {
           )}
         </main>
 
-        {/* Right Sidebar — Alerts */}
-        <aside className="lg:col-span-1 space-y-6">
-          <div className="bg-gray-800/50 backdrop-blur-sm rounded-xl p-5 border border-gray-700/50">
-            <h2 className="text-lg font-bold mb-4 flex items-center">
-              <AlertOctagon className="h-5 w-5 mr-2 text-yellow-400" />
-              Policy Alerts
-            </h2>
+        {/* ── RIGHT: Alerts ── */}
+        <aside>
+          <div className="card">
+            <div className="card-header">
+              <div className="card-icon card-icon--amber"><Bell /></div>
+              <h2>Policy Alerts</h2>
+            </div>
 
             {alerts.length === 0 ? (
-              <p className="text-gray-500 text-sm italic">No alerts yet. Run a sweep to detect changes.</p>
+              <div className="alert-empty">
+                <div className="alert-empty-icon"><Bell /></div>
+                <div className="alert-empty-text">
+                  No alerts yet.<br />
+                  Run a sweep to detect policy changes and new opportunities.
+                </div>
+              </div>
             ) : (
-              <div className="space-y-4 max-h-[500px] overflow-y-auto pr-2">
-                {alerts.map((alert) => (
-                  <div
-                    key={alert.id}
-                    className={`p-3 rounded-lg text-sm ${
-                      alert.type === 'critical'
-                        ? 'bg-red-900/20 border border-red-700/50'
-                        : alert.type === 'new'
-                        ? 'bg-green-900/20 border border-green-700/50'
-                        : 'bg-yellow-900/20 border border-yellow-700/50'
-                    }`}
-                  >
-                    <div className="flex justify-between items-start">
-                      <h3 className="font-medium">{alert.title}</h3>
-                      <span className="text-xs text-gray-400 whitespace-nowrap">
-                        {new Date(alert.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                      </span>
+              <div className="alerts-list">
+                {alerts.map((a) => (
+                  <div key={a.id} className={`alert-item alert-item--${a.type}`}>
+                    <div className="alert-top">
+                      <div className="alert-title">{a.title}</div>
+                      <div className="alert-time">
+                        {new Date(a.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                      </div>
                     </div>
-                    <p className="mt-1 text-gray-300">{alert.message.substring(0, 120)}{alert.message.length > 120 ? '...' : ''}</p>
-                    <div className="mt-2 flex flex-wrap gap-1">
-                      {alert.detectedBy.map((by, i) => (
-                        <span key={i} className="text-xs px-2 py-0.5 bg-gray-700 rounded">
-                          {by}
-                        </span>
+                    <div className="alert-body">
+                      {a.message.length > 140 ? a.message.substring(0, 140) + '…' : a.message}
+                    </div>
+                    <div className="alert-tags">
+                      {a.detectedBy.map((by, i) => (
+                        <span key={i} className="alert-tag">{by}</span>
                       ))}
                     </div>
                   </div>
