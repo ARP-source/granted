@@ -1,11 +1,26 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { routePrompt } from '../../../../lib/tokenrouter';
 import { brightdata } from '../../../../lib/brightdata';
 import { evermind } from '../../../../lib/evermind';
 import type { Grant } from '../../../../types';
 
 // Mock user ID for demo
 const DEMO_USER_ID = 'user_alex_h4';
+
+// Safe wrapper for TokenRouter — falls back to mock if API key missing or call fails
+async function safeRoutePrompt(
+  task: 'fast' | 'deep',
+  systemPrompt: string,
+  userMessage: string,
+  fallback: string
+): Promise<string> {
+  try {
+    const { routePrompt } = await import('../../../../lib/tokenrouter');
+    return await routePrompt(task, systemPrompt, userMessage);
+  } catch (err) {
+    console.warn(`[TokenRouter] ${task} call failed, using fallback:`, err);
+    return fallback;
+  }
+}
 
 export async function POST(request: NextRequest) {
   try {
@@ -60,17 +75,17 @@ export async function POST(request: NextRequest) {
     // 4. Detect deltas
     const deltas = evermind.detectDeltas(yesterdayGrants, todayGrants);
 
-    // 5. Generate AI explanations per delta
+    // 5. Generate AI explanations per delta (with graceful fallbacks)
     const alerts: any[] = [];
     const newGrants: any[] = [];
 
     for (const delta of deltas) {
       if (delta.type === 'status_change' && delta.status === 'ineligible') {
-        // DEEP_ROUTE: policy reasoning for eligibility loss
-        const explanation = await routePrompt(
+        const explanation = await safeRoutePrompt(
           'deep',
           `You are a legal policy analyst specializing in U.S. financial aid for H4 visa holders. Analyze the change below and explain in plain English: why it matters, who it affects, and what action the student should take. Be precise, cite the rule change, and avoid jargon.`,
-          `Grant '${delta.grant.name}' changed from 'eligible' to 'ineligible'. New requirement added: 'EAD required'. Previous requirements: ['AB540 status', 'CA resident 3+ years']. Student profile: H4 visa, Statistics major, Sunnyvale CA.`
+          `Grant '${delta.grant.name}' changed from 'eligible' to 'ineligible'. New requirement added: 'EAD required'. Previous requirements: ['AB540 status', 'CA resident 3+ years']. Student profile: H4 visa, Statistics major, Sunnyvale CA.`,
+          `The ${delta.grant.name} has added a new requirement: applicants must hold an active Employment Authorization Document (EAD). H4 visa holders without an EAD are now ineligible. This change stems from the AB540 Amendment (SB-2026), which amended Section 68130.5 to require a valid EAD under 8 CFR 274a.12(c)(17) or (c)(18). Action: Check if you can apply for an EAD through your H4 status, or look for alternative funding that does not require one.`
         );
 
         alerts.push({
@@ -84,11 +99,11 @@ export async function POST(request: NextRequest) {
       }
 
       if (delta.type === 'new_grant') {
-        // FAST_ROUTE: extract & rank
-        const summary = await routePrompt(
+        const summary = await safeRoutePrompt(
           'fast',
           `Extract grant name, amount, deadline, and top 2 matching criteria from this text. Return as JSON: {name, amount, deadline, matchReason}. Do NOT add commentary.`,
-          `New grant: Bay Area Tech Merit Fund — $3,000 — Deadline: Oct 15, 2026 — For Statistics majors who live in Sunnyvale.`
+          `New grant: Bay Area Tech Merit Fund — $3,000 — Deadline: Oct 15, 2026 — For Statistics majors who live in Sunnyvale.`,
+          `{"name": "Bay Area Tech Merit Fund", "amount": "$3,000", "deadline": "Oct 15, 2026", "matchReason": "Statistics major + Sunnyvale resident"}`
         );
 
         try {
